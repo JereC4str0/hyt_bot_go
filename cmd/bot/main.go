@@ -92,19 +92,26 @@ func main() {
 		// Extract the command from the Message.
 		switch update.Message.Command() {
 		case "ayuda":
+
 			chatID := int64(5662534540)
 			fileID := "CAACAgIAAxkBAANSZQ96opB0miPq8Y5q-HJut-zboswAAvoQAAKhxyhIOWV265NYB6MwBA"
 
-			StickerMessage := tgbotapi.NewSticker(chatID, tgbotapi.FileID(fileID))
-			_, err = bot.Send(StickerMessage)
+			// Enviar el sticker
+			stickerMessage := tgbotapi.NewSticker(chatID, tgbotapi.FileID(fileID))
+			_, err = bot.Send(stickerMessage)
+			if err != nil {
+				log.Panic(err)
+			}
 
-			msg.Text = "Los comandos disponibles son: \n\n  /temperatura \n\n /humedad."
+			// Enviar el mensaje
+			msg := `comandos disponibles 🤖` + "\n\n" + `usa /temperatura para ver la temperatura actual` + "\n\n" + `usa /humedad para ver la humedad actual`
+			textMessage := tgbotapi.NewMessage(chatID, msg)
+			_, err = bot.Send(textMessage)
 			if err != nil {
 				log.Panic(err)
 			}
 
 		case "temperatura":
-
 			// Obtener la temperatura
 			data, err := fetchSensorData()
 			if err != nil {
@@ -112,10 +119,15 @@ func main() {
 				msg.Text = "Error al obtener los datos de la API"
 			} else {
 				msg.Text = fmt.Sprintf("🌡 La temperatura actual en la incubadora es: %s °C", data.ATemperature)
+
+				// Enviar el mensaje con la temperatura
+				_, err = bot.Send(msg)
+				if err != nil {
+					log.Panic(err)
+				}
 			}
 
 		case "humedad":
-
 			// Obtener la humedad
 			data, err := fetchSensorData()
 			if err != nil {
@@ -123,6 +135,12 @@ func main() {
 				msg.Text = "Error al obtener los datos de la API"
 			} else {
 				msg.Text = fmt.Sprintf("💧 La humedad actual en la incubadora es: %s %%", data.AHumidity)
+
+				// Enviar el mensaje con la humedad
+				_, err = bot.Send(msg)
+				if err != nil {
+					log.Panic(err)
+				}
 			}
 
 		default:
@@ -130,13 +148,16 @@ func main() {
 			chatID := int64(5662534540)
 			fileID := "CAACAgIAAxkBAANJZQ93-VLDn67zWDNqB3kOjrIzns0AAkUYAAIUqPBIVd-bm1T8xSswBA"
 
-			StickerMessage := tgbotapi.NewSticker(chatID, tgbotapi.FileID(fileID))
-			_, err = bot.Send(StickerMessage)
+			// Enviar el sticker
+			stickerMessage := tgbotapi.NewSticker(chatID, tgbotapi.FileID(fileID))
+			_, err = bot.Send(stickerMessage)
 			if err != nil {
 				log.Panic(err)
 			}
 
-			msg := "No conozco ese comando \n\n Usá /ayuda para ver los comandos disponibles"
+			// Enviar el mensaje
+			msg := `No conozco ese comando.` + "\n\n" + `usa /ayuda para conocer los comandos disponibles:
+      `
 			textMessage := tgbotapi.NewMessage(chatID, msg)
 			_, err = bot.Send(textMessage)
 			if err != nil {
@@ -144,10 +165,5 @@ func main() {
 			}
 
 		}
-
-		if _, err := bot.Send(msg); err != nil {
-			log.Panic(err)
-		}
 	}
-
 }
